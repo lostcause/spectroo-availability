@@ -1,0 +1,47 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: .8rem;
+}
+
+.table-fixed {
+  display: flex;
+  max-height: calc(100vh - 70px);
+}
+
+.table-fixed table {
+  position: relative;
+}
+
+.table-fixed table thead tr th {
+  position: sticky;
+  top: -1px;
+  background-color: #dee2e6;
+}
+
+.table-fixed table tbody tr td:first-child {
+  position: sticky;
+  left: -1px;
+  background-color: #dee2e6;
+}
+
+.table-fixed table button {
+  background: none;
+  border: none;
+  color: #b41b1e;
+  font-size: 18px;
+}
+
+td.selectable {
+  cursor: cell;
+}
+td.cell-selected {
+  background-color: aqua !important;
+}
+td.cell-being-selected {
+  background: rgb(44, 62, 80) none repeat scroll 0% 0%;
+}
