@@ -322,13 +322,18 @@ class TableRow extends React.Component {
                 let validToDate = new Date(data.valid_to);
                 if(currentDate >= validFromDate && currentDate <= validToDate) {
                     // remove end of day TPS extraCampaign used as standin for dynamic campaigns
-                    if(!(data.valid_from_interval ==='23:58:00') && !(data.valid_to_interval === '23:59:59')) {
+                    if(data?.tps?.isTps && (data.valid_from_interval ==='23:58:00') && (data.valid_to_interval === '23:59:00')) {
+                        //pass
+                        console.log(data?.tps?.campaign?.name, data.tps.isTps, 'FROM: ', data.valid_from_interval, 'TO:', data.valid_to_interval);
+                    } else {
                         count++;
                         // add campaign names to an array so we can pass it to the cell for the tooltip
-                        campaignNames.push(data?.tps?.campaign?.name);
+                        if(!data?.tps?.isTps) {
+                            campaignNames.push(`3rdParty: ${data?.campaign_id}`);
+                        } else {
+                            campaignNames.push(data?.tps?.campaign?.name);
+                        }
                     }
-
-
                 }
                 return count;
             });
