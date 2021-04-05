@@ -46,10 +46,6 @@ export default class App extends React.Component {
         axios.get('https://synapse.network.tpsengage.com/spectroo/playlist', config)
             .then((responseData) => {
                 this.setState({response: responseData.data.data}, () => {
-                    let locations = responseData.data.data.map(item => ({
-                        name: item.group_name,
-                        id: item.group_id
-                    }));
                     this.setState({locations: orderedLocations});
                     const startDate = new Date(this.state.startDate.getTime());
                     const endDate = new Date(this.state.endDate.getTime());
@@ -133,7 +129,67 @@ export default class App extends React.Component {
         this.setState({ dataToDownload: exportData }, () => {
             //this.csvLink.link.click();
         });
-    }
+    };
+
+    handleTouchStartCell = (e) => {
+        const isLeftClick = e.button === 0;
+        const isTouch = e.type !== 'mousedown';
+        if(!this.state.selectionStarted && (isLeftClick || isTouch))
+        {
+            e.preventDefault();
+            const {row, column} = eventToCellLocation(e);
+            this.setState({
+                selectionStarted: true,
+                startRow: row,
+                startColumn: column,
+                endRow: row,
+                endColumn: column,
+                addMode: this.state.value[row][column].selected,
+            });
+        }
+    };
+
+    handleTouchMoveCell = (e) => {
+        if(this.state.selectionStarted) {
+            e.preventDefault();
+            const {row, column} = eventToCellLocation(e);
+            const {startRow, startColumn, endRow, endColumn} = this.state;
+
+            if(endRow !== row || endColumn !== column) {
+                const nextRowCount =
+                    startRow === null && endRow === null
+                        ? 0
+                        : Math.abs(row - startRow) + 1;
+                const nextColumnCount =
+                    startColumn === null && endColumn === null
+                        ? 0
+                        : Math.abs(column - startColumn) + 1;
+
+                if(nextRowCount <= 69) {
+                    this.setState({ endRow: row });
+                }
+
+                if(nextColumnCount <= 31) {
+                    this.setState({ endColumn: column });
+                }
+            }
+        }
+    };
+
+    isCellBeingSelected = (row, column) => {
+        const minRow = Math.min(this.state.startRow, this.state.endRow);
+        const maxRow = Math.max(this.state.startRow, this.state.endRow);
+        const minColumn = Math.min(this.state.startColumn, this.state.endColumn);
+        const maxColumn = Math.max(this.state.startColumn, this.state.endColumn);
+
+        return (
+            this.state.selectionStarted &&
+            (row >= minRow &&
+                row <= maxRow &&
+                column >= minColumn &&
+                column <= maxColumn)
+        );
+    };
 
     render() {
         if(this.state.isLoading) {
@@ -195,6 +251,9 @@ export default class App extends React.Component {
                         dates={dates}
                         data={this.state}
                         row={index}
+                        handleTouchStartCell={this.handleTouchStartCell}
+                        handleTouchMoveCell={this.handleTouchMoveCell}
+                        isCellBeingSelected={this.isCellBeingSelected}
                     />
                 </tr>
             );
@@ -246,66 +305,11 @@ class TableRow extends React.Component {
             dates,
             data,
             row,
+            handleTouchStartCell,
+            handleTouchMoveCell,
+            isCellBeingSelected,
             ...props
         } = this.props;
-
-        const handleTouchStartCell = (e) => {
-            const isLeftClick = e.button === 0;
-            const isTouch = e.type !== 'mousedown';
-            if(!data.selectionStarted && (isLeftClick || isTouch))
-            {
-                e.preventDefault();
-                const {row, column} = eventToCellLocation(e);
-                data.selectionStarted = true;
-                data.startRow = row;
-                data.startColumn = column;
-                data.endRow = row;
-                data.endColumn = column;
-                data.addMode = data.value[row][column].selected;
-            }
-        };
-
-        const handleTouchMoveCell = (e) => {
-            if(data.selectionStarted) {
-                e.preventDefault();
-                const {row, column} = eventToCellLocation(e);
-                const {startRow, startColumn, endRow, endColumn} = data;
-
-                if(endRow !== row || endColumn !== column) {
-                    const nextRowCount =
-                        startRow === null && endRow === null
-                            ? 0
-                            : Math.abs(row - startRow) + 1;
-                    const nextColumnCount =
-                        startColumn === null && endColumn === null
-                            ? 0
-                            : Math.abs(column - startColumn) + 1;
-
-                    if(nextRowCount <= 69) {
-                        data.endRow = row;
-                    }
-
-                    if(nextColumnCount <= 31) {
-                        data.endColumn = column;
-                    }
-                }
-            }
-        };
-
-        const isCellBeingSelected = (row, column) => {
-            const minRow = Math.min(data.startRow, data.endRow);
-            const maxRow = Math.max(data.startRow, data.endRow);
-            const minColumn = Math.min(data.startColumn, data.endColumn);
-            const maxColumn = Math.max(data.startColumn, data.endColumn);
-
-            return (
-                data.selectionStarted &&
-                (row >= minRow &&
-                    row <= maxRow &&
-                    column >= minColumn &&
-                    column <= maxColumn)
-            );
-        };
 
         return dates.map((item, index) => {
             let count = 0;
@@ -378,7 +382,7 @@ class Cell extends React.Component {
             data.value[row][column] = false;
         }
 
-        if (beingSelected) {
+        if (beingSelected && valid) {
             className += ' cell-being-selected';
         }
 

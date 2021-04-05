@@ -43,5 +43,6 @@ td.cell-selected {
   background-color: aqua !important;
 }
 td.cell-being-selected {
-  background: rgb(44, 62, 80) none repeat scroll 0% 0%;
+  background: rgb(44, 62, 80) none repeat scroll 0% 0% !important;
+  color: #fff;
 }
