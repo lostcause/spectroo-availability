@@ -1,5 +1,6 @@
-import React from "react";
+import React, {useState} from "react";
 import DateRangePicker from '@wojtekmaj/react-daterange-picker';
+import ReactTooltip from 'react-tooltip';
 import { CSVLink } from "react-csv";
 // eslint-disable-next-line
 import axios from "axios";
@@ -290,6 +291,7 @@ export default class App extends React.Component {
                         </tbody>
                     </table>
                 </div>
+                <ReactTooltip multiline={true}/>
             </div>
         );
     }
@@ -313,19 +315,25 @@ class TableRow extends React.Component {
 
         return dates.map((item, index) => {
             let count = 0;
+            let campaigns = [];
             let currentDate = new Date(item);
             usedDates.map((data) => {
                 let validFromDate = new Date(data.valid_from);
                 let validToDate = new Date(data.valid_to);
                 if(currentDate >= validFromDate && currentDate <= validToDate) {
+                    campaigns.push(data?.tps?.campaign?.name);
                     count++;
                 }
                 return count;
             });
+            campaigns = campaigns.map(d => {
+               return `<br>${d}<br/>`
+            }).join('');
 
             return (
                 <Cell
                     key={index}
+                    campaigns={campaigns}
                     valid={count < 3}
                     onTouchStart={handleTouchStartCell}
                     onTouchMove={handleTouchMoveCell}
@@ -343,7 +351,10 @@ class TableRow extends React.Component {
 }
 
 class Cell extends React.Component {
-
+    constructor() {
+        super();
+        this.state = { isShown: false }
+    }
     render() {
         let {
             valid,
@@ -355,8 +366,18 @@ class Cell extends React.Component {
             row,
             column,
             beingSelected,
+            campaigns,
             ...props
         } = this.props;
+
+
+        const handleHoverIn = () => {
+            this.setState({isShown: true})
+        };
+
+        const handleHoverEnd = () => {
+            this.setState({isShown: false})
+        };
 
         const handleTouchStart = (e) => {
             if(e.target.classList[1] === 'selectable') {
@@ -368,7 +389,7 @@ class Cell extends React.Component {
             if(e.target.classList[1] === 'selectable') {
                 onTouchMove(e);
             }
-        }
+        };
 
         let className = valid ? 'bg-success selectable' : 'bg-danger';
 
@@ -387,8 +408,10 @@ class Cell extends React.Component {
         }
 
         return (
-            <td style={{textAlign: 'center', userSelect: 'none'}}
+            <td data-tip={campaigns} data-multiline={true} style={{textAlign: 'center', userSelect: 'none'}}
                 className={className}
+                onMouseEnter={handleHoverIn.bind(this)}
+                onMouseLeave={handleHoverEnd.bind(this)}
                 onMouseDown={handleTouchStart}
                 onMouseMove={handleTouchMove}
                 {...props}
