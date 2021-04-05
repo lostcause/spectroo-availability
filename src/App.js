@@ -315,25 +315,27 @@ class TableRow extends React.Component {
 
         return dates.map((item, index) => {
             let count = 0;
-            let campaigns = [];
+            let campaignNames = [];
             let currentDate = new Date(item);
             usedDates.map((data) => {
                 let validFromDate = new Date(data.valid_from);
                 let validToDate = new Date(data.valid_to);
                 if(currentDate >= validFromDate && currentDate <= validToDate) {
-                    campaigns.push(data?.tps?.campaign?.name);
+                    // add campaign names to an array so we can pass it to the cell for the tooltip
+                    campaignNames.push(data?.tps?.campaign?.name);
                     count++;
                 }
                 return count;
             });
-            campaigns = campaigns.map(d => {
+            // surround campaign names with <br> so they appear multiline in the tooltip
+            campaignNames = campaignNames.map(d => {
                return `<br>${d}<br/>`
             }).join('');
 
             return (
                 <Cell
                     key={index}
-                    campaigns={campaigns}
+                    campaignsNames={campaignNames}
                     valid={count < 3}
                     onTouchStart={handleTouchStartCell}
                     onTouchMove={handleTouchMoveCell}
@@ -366,7 +368,7 @@ class Cell extends React.Component {
             row,
             column,
             beingSelected,
-            campaigns,
+            campaignsNames,
             ...props
         } = this.props;
 
@@ -408,7 +410,7 @@ class Cell extends React.Component {
         }
 
         return (
-            <td data-tip={campaigns} data-multiline={true} style={{textAlign: 'center', userSelect: 'none'}}
+            <td data-tip={campaignsNames} data-multiline={true} style={{textAlign: 'center', userSelect: 'none'}}
                 className={className}
                 onMouseEnter={handleHoverIn.bind(this)}
                 onMouseLeave={handleHoverEnd.bind(this)}
