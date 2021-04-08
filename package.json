@@ -3,25 +3,24 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-  	    "@babel/cli": "^7.7.7",
+    "@babel/cli": "^7.7.7",
     "@babel/core": "^7.7.7",
     "@babel/plugin-proposal-class-properties": "^7.7.4",
     "@babel/preset-env": "^7.7.7",
     "@babel/preset-react": "^7.7.4",
-    "babel-loader": "^8.0.6",
-    "css-loader": "^3.4.1",
-    "prop-types": "^15.7.2",
-    "style-loader": "^1.1.2",
-    "url-loader": "^3.0.0",
-    "webpack": "^4.41.5",
-    "webpack-cli": "^3.3.10",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
+    "babel-loader": "^8.0.6",
+    "css-loader": "^3.4.1",
     "prop-types": "^15.7.2",
     "react-scripts": "4.0.3",
     "react-tooltip": "^4.2.17",
-    "web-vitals": "^1.0.1"
+    "style-loader": "^1.1.2",
+    "url-loader": "^3.0.0",
+    "web-vitals": "^1.0.1",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
   },
   "peerDependencies": {
     "@wojtekmaj/react-daterange-picker": "^3.1.0",
@@ -33,7 +32,7 @@
   },
   "scripts": {
     "start": "PORT=3006 react-scripts start",
-    "build": "react-scripts build",
+    "build": "webpack --mode production --display-modules",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
